@@ -7,10 +7,10 @@ from tkinter import filedialog
 import os, glob
 import numpy as np
 import matplotlib.pyplot as plt
-import ClassAcquisitionStokesCamera;cp=ClassAcquisitionStokesCamera.CameraPolar()
+#import ClassAcquisitionStokesCamera;cp=ClassAcquisitionStokesCamera.CameraPolar()
 import ClassTraitStokesCamera;st=ClassTraitStokesCamera.Stokes()
 
-class Stocks_GUI(Frame):
+class Stokes_GUI(Frame):
     def __init__(self, master):
         self.master = master
         Frame.__init__(self, self.master)
@@ -20,7 +20,7 @@ class Stocks_GUI(Frame):
         ######### Acquisition ############# 
 #--------------------------------------------------------------
         self.name_entry.bind("<Return>", (lambda event: self.By_enter(self.Save_as_en, self.Npy_file_save)))#updating by enetry in the entry
-        self.name_entry.bind("<<ComboboxSelected>>", (lambda event: self.By_enter(self.Save_as_en,self.Npy_file_save)))#updating by selecting one of the list
+        self.name_entry.bind("<<ComboboxSelected>>", (lambda event: self.By_enter(self.Save_as_en,self.Npy_file_save)))#uupdating by selecting one of the list
         self.defaultBackground = self["background"] 
         self.bb_goto_bot.bind("<Enter>",lambda event:self.by_mouse(self.bb_goto_bot))
         self.bb_goto_bot.bind("<Leave>",lambda event:self.by_mouse_leave(self.bb_goto_bot))
@@ -67,7 +67,7 @@ class Stocks_GUI(Frame):
         self.Frame_numb_var=IntVar();self.Frame_numb_var.set(12)
 
     def create_widgets(self):
-        self.master.title("Stocks parameters measurement")
+        self.master.title("Stokes parameters measurement")
         topframe=Frame(self.master)
         topframe.pack()
         nbook=ttk.Notebook(topframe)
@@ -135,12 +135,13 @@ class Stocks_GUI(Frame):
         Returns True if the file was saved, and False if the user
         cancelled the dialog.
         """
-        self.save_as_path =filedialog.asksaveasfilename(initialdir=os.getcwd(),initialfile=self.Npy_file_save.get()\
-                , title="Select As")#,filetypes=("json", "*.json")
+        self.save_as_path =filedialog.askdirectory(initialdir=os.getcwd(),title="Select As")#,filetypes=("json", "*.json")
         if self.save_as_path:
+            os.chdir(self.save_as_path)
             #print(self.save_as_path)
             self.Save_as_en.configure(text=self.save_as_path)
-            self.Save_As_var.set(self.save_as_path)
+            self.Save_As_var.set((os.getcwd()+"/"+self.Npy_file_save.get()).replace(os.sep, '/'))
+            self.By_enter(self.Save_as_en, self.Npy_file_save)
         else:
             tk.messagebox.showinfo("Warning",'Please try again to save the file')
     def by_mouse(self,current_button):
@@ -166,8 +167,8 @@ class Stocks_GUI(Frame):
     def bs_goto_fun(self):
         cp.bs.VaLbda(self.Bb_lam.get())
     def Aq_measure_fun(self):
-        #print("cp.Mesure(attente=1,fich={},Npas={},pas={})".format(self.Save_As_var.get(),int(360/self.Measure_step.get()+1),self.Measure_step.get()))
-        cp.Mesure(attente=1,fich=self.Save_As_var.get(),Npas=int(360/self.Measure_step.get()+1),pas=self.Measure_step.get())
+        #print("cp.Mesure(attente=1,fich={},Npas={},pas={})".format(self.Npy_file_save.get(),int(360/self.Measure_step.get()+1),self.Measure_step.get()))
+        cp.Mesure(attente=1,fich=self.Npy_file_save.get(),Npas=int(360/self.Measure_step.get()+1),pas=self.Measure_step.get())
 #
 #--------------------------------------------------------------
         ######### Treatment ############# 
@@ -179,7 +180,7 @@ class Stocks_GUI(Frame):
         col=0;ligne+=1
         # ---------------- 4 boutons
         ligne+=1;col=0
-        self.Treat_combobox=ttk.Combobox(frame, width=18, textvariable=self.Default_function, values=["Moy_choose","Save_stocks_choose","Carto_choose","S3_from_stocks"])
+        self.Treat_combobox=ttk.Combobox(frame, width=18, textvariable=self.Default_function, values=["Moy_choose","Save_Stokes_choose","Carto_choose","S3_from_Stokes"])
         self.Treat_combobox.grid(row=ligne, column=col, padx=5, pady=5)
         self.run_bot=Button(frame,text="Run",command=lambda:self.run_function(), width=10, relief=RAISED)
         self.run_bot.grid(row=ligne,column=col+1,padx=5,pady=5)
@@ -197,7 +198,7 @@ class Stocks_GUI(Frame):
         self.checkbutton4=Checkbutton(frame,text="Save colored gif",variable=self.checkbutton4_var)
         self.checkbutton4.grid(row=ligne+1, column=col+3, padx=5, pady=5)
         col=0
-        self.Browsfile_Lframe= LabelFrame(frame, text="Browse A File");self.Browsfile_Lframe\
+        self.Browsfile_Lframe= LabelFrame(frame, text="Browse a file");self.Browsfile_Lframe\
                 .grid(row=ligne+3,column=col,columnspan=2,sticky='EW')
         #self.checkbutton5=Checkbutton(self.Browsfile_Lframe,text="choose another file",command=self.naccheck,variable=self.checkbutton5_var)
         #self.checkbutton5.pack()
@@ -205,7 +206,7 @@ class Stocks_GUI(Frame):
                 values= ["lambda0.npy","lambda0p125.npy","lambda0p25.npy","lambda0p375.npy",\
                 "lambda0p5.npy","lambda0p625.npy","lambda0p75.npy","lambda0p875.npy"]);self.Browsfile_entry.pack();
         self.Browsfile_en=Label(self.Browsfile_Lframe, text=self.Browsfile_str_var.get());self.Browsfile_en.pack()
-        self.Browsfile_bot=Button(self.Browsfile_Lframe, text="Browse A File", command=lambda:self.file_open());self.Browsfile_bot.pack()
+        self.Browsfile_bot=Button(self.Browsfile_Lframe, text="Browse a directory", command=lambda:self.file_open());self.Browsfile_bot.pack()
         self.exit2_bot=Button(frame, text="Close",width=10, command= lambda: self.close_all())
         self.exit2_bot.grid(row=ligne+8,column=col+3, padx=5,pady=5)
         self.exit3_bot=Button(frame, text="Close Plots",width=10, command= lambda: self.close_plots())
@@ -213,39 +214,33 @@ class Stocks_GUI(Frame):
         return frame
 
     def file_open(self): # to brows the file
-        self.file_open_path = filedialog.askopenfilename(initialdir=os.getcwd(),\
-                title="Select A File")#, filetype=(("Numpy files", "*.npy"),("all files", "*.*")))
+        self.file_open_path = filedialog.askdirectory(initialdir=os.getcwd(),\
+                title="Select A Directory")#, filetype=(("Numpy files", "*.npy"),("all files", "*.*")))
         if self.file_open_path:
             self.Browsfile_en.configure(text=self.file_open_path)
-            print(self.file_open_path)
-            self.Browsfile_str_var.set(self.file_open_path)
+            os.chdir(self.file_open_path)
+            self.Browsfile_str_var.set((os.getcwd()+"/"+self.Browsfile_str.get()).replace(os.sep, '/'))
+            self.By_enter(self.Browsfile_en, self.Browsfile_str)
         else:
             tk.messagebox.showinfo("Warning","You didn't pick any file")
         #print(self.filename)
+        #self.Browsfile_str=StringVar();self.Browsfile_str.set("lambda0.npy")
     def run_function(self):
         if self.Default_function.get()=="Moy_choose":
-           # print("frame num ",self.Frame_numb_var.get())
-           # print("hello ",self.Default_function.get())
-           # print("show image ",self.checkbutton1_var.get())
-           # print("Animate ",self.checkbutton2_var.get())
-           # print("Save gif ",self.checkbutton3_var.get())
-           # print("Save colored gif ",self.checkbutton4_var.get())
-            st.Moy_choose(fich=self.Browsfile_str_var.get(),frame_numb=self.Frame_numb_var.get(),show_image=self.\
+            st.Moy_choose(fich=self.Browsfile_str.get(),frame_numb=self.Frame_numb_var.get(),show_image=self.\
                     checkbutton1_var.get(),anime=self.checkbutton2_var.get(),save_gif=self.checkbutton3_var.get(),\
                     save_colored_gif=self.checkbutton4_var.get())
-        elif self.Default_function.get()=="Save_stocks_choose":
-            #print("hello "+self.Default_function.get())
-            st.Save_stocks_choose(fich=self.Browsfile_str_var.get(),frame_numb=self.Frame_numb_var.get(),show_image=self.\
+        elif self.Default_function.get()=="Save_Stokes_choose":
+            st.Save_Stokes_choose(fich=self.Browsfile_str.get(),frame_numb=self.Frame_numb_var.get(),show_image=self.\
                     checkbutton1_var.get(),anime=self.checkbutton2_var.get(),save_gif=self.checkbutton3_var.get(),\
                     save_colored_gif=self.checkbutton4_var.get())
         elif self.Default_function.get()=="Carto_choose":
-            #print("hello "+self.Default_function.get())
-            st.Carto_choose(bdf=70,fich=self.Browsfile_str_var.get(),frame_numb=self.Frame_numb_var.get(),show_image=self.\
+            st.Carto_choose(bdf=70,fich=self.Browsfile_str.get(),frame_numb=self.Frame_numb_var.get(),show_image=self.\
                     checkbutton1_var.get(),anime=self.checkbutton2_var.get(),save_gif=self.checkbutton3_var.get(),\
                     save_colored_gif=self.checkbutton4_var.get())
-        elif self.Default_function.get()=="S3_from_stocks":
+        elif self.Default_function.get()=="S3_from_Stokes":
             #print("hello "+self.Default_function.get())
-            st.S3_from_stocks()#fich=self.Browsfile_str_var.get())
+            st.S3_from_Stokes()#fich=self.Browsfile_str.get())
     def close_plots(self):
         plt.close('all')
     def close_all(self):
@@ -254,7 +249,7 @@ class Stocks_GUI(Frame):
 #--------------------------------------------------------------
 if __name__ == '__main__':
     root = Tk()
-    the_gui = Stocks_GUI(root)
+    the_gui = Stokes_GUI(root)
     #ani=animation.FuncAnimation(my_gui.Figspectre,my_gui.updatefig,interval=50)
     root.mainloop()
 

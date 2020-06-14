@@ -40,16 +40,16 @@ class Stokes :
         reponse += "The parameters--> show_image is to show the image of the analysed area by choosing a frame from frame_numb parameter," \
                    " anime is to animate all the frames of the file, and save_gif is to save a gif file with the name of the file )\n"+"\n"
         reponse += 'To choose the right position of the guided mode and dimensions of the rectangle then find' \
-                          'stocks parameters, run:' + "\n"
+                          'Stokes parameters, run:' + "\n"
         reponse += 'st.Moy_choose(fich="lambda0.npy",frame_numb=12,show_image=True, anime=False,save_gif=False)\n'
-        reponse += "\n" + 'To save stocks parameters values in a file called stocks by choosing the exact postion of the guided mode, run:\n'
-        reponse += 'st.Save_stocks_choose(fich="lambda0.npy",frame_numb=12,show_image=False, anime=False, save_gif=False)\n'
-        reponse += 'The stocks parameters are calculated and saved in the file from the .npy files saved in the directory\n'
+        reponse += "\n" + 'To save Stokes parameters values in a file called Stokes by choosing the exact postion of the guided mode, run:\n'
+        reponse += 'st.Save_Stokes_choose(fich="lambda0.npy",frame_numb=12,show_image=False, anime=False, save_gif=False)\n'
+        reponse += 'The Stokes parameters are calculated and saved in the file from the .npy files saved in the directory\n'
         reponse += '!!!!! please be aware of that the .npy files should be saved as lambda0.npy, lambda0p25.npy, and lamabda1.npy etc...\n'
         reponse += "\n" + 'To find position of the guided mode and dimensions of the rectangle, run: \n'
         reponse += 'st.Pos_max(fich="lambda0.npy",frame_numb=12, x_range=50, y_range=50)\n'
-        reponse += "\n" + 'To save stocks parameters values in a file called stocks based on the Pos_max function, run:\n'
-        reponse += "st.Save_stocks(fich='lambda0.npy',frame_numb=12, x_range=50, y_range=50)\n"
+        reponse += "\n" + 'To save Stokes parameters values in a file called Stokes based on the Pos_max function, run:\n'
+        reponse += "st.Save_Stokes(fich='lambda0.npy',frame_numb=12, x_range=50, y_range=50)\n"
         reponse += "\n" +" Cartograhpie:\n"
         reponse += 'st.Carto(fich="lambda0.npy",bdf=70,x1=50,y1=50,Lx=30,Ly=30)'
         reponse += "\n"+'puis st.Sauve(fich="res")'+"\n"
@@ -147,7 +147,7 @@ class Stokes :
                 ims.append([im])
             ani = animation.ArtistAnimation(fig, ims, interval=100, blit=True,repeat_delay=500)
             # ani.save(fich.replace(".npy",".gif")) #######there is a bug in matplotlib, we wait until fix
-            plt.show(block=True)
+            plt.show(block=False)
         if save_gif==True:
             writer = imageio.get_writer(fich.replace(".npy", ".gif"))
             for i in range(1, lesdata.shape[0]):
@@ -172,7 +172,7 @@ class Stokes :
 
     def Moy_choose(self,fich="lambda0.npy",frame_numb=12,show_image=True, anime=False,save_gif=False,save_colored_gif=False):###################
         """ It asks user to choose position of x1, y1, Lx, and then it
-        calculates stocks parameters by using Moy function"""
+        calculates Stokes parameters by using Moy function"""
         ledata = np.load(fich)
         frame = ledata[frame_numb, :, :]
         fig, ax = plt.subplots()
@@ -205,9 +205,9 @@ class Stokes :
         self.Moy(fich=fich, x1=y1, y1=x1, Lx=Ly,Ly=Lx,show_image=show_image,frame_numb=frame_numb, anime=anime,
                  save_gif=save_gif, save_colored_gif=save_colored_gif)
         
-    def Save_stocks_choose(self,fich="lambda0.npy",frame_numb=12,show_image=False, anime=False, save_gif=False,save_colored_gif=False):##############
+    def Save_Stokes_choose(self,fich="lambda0.npy",frame_numb=12,show_image=False, anime=False, save_gif=False,save_colored_gif=False):##############
         """ It asks user to choose position of x1, y1, Lx, and then it
-        saves stocks parameters in file called stocks by using Moy function """
+        saves Stokes parameters in file called Stokes by using Moy function """
         ledata = np.load(fich)
         frame = ledata[frame_numb, :, :]
         fig, ax = plt.subplots()
@@ -244,7 +244,8 @@ class Stokes :
             ret=self.Moy(fich=lesimages,x1=y1, y1=x1, Lx=Ly,Ly=Lx,show_image=show_image,frame_numb=frame_numb,
                          anime=anime, save_gif=save_gif, save_colored_gif=save_colored_gif)
             stokesVector=np.vstack((stokesVector,ret))
-        np.savetxt("stocks",stokesVector[1:,],fmt='%.3f')#fich.replace(".npy", ".stocks"
+            plt.title(lesimages)            
+        np.savetxt("Stokes",stokesVector[1:,],fmt='%.3f')#fich.replace(".npy", ".Stokes"
         ######## here i include the Fitstokes.py file
         data=stokesVector[1:,]
         x0 = [np.deg2rad(45), np.deg2rad(-45), 0]
@@ -253,10 +254,10 @@ class Stokes :
         S3 = np.array((np.sin(2*sol[0]),np.sin(sol[0])))
         print("S3 is = {:.3f}, {:.3f}".format(S3[0],S3[1]))
 
-    def S3_from_stocks(self,fich="stocks"):#fich="lambda0.npy")
-        '''This method calculates S3 from a file called stocks, the file must include input and output Stocks parameters.
-        this file can be saved from the method Save_stocks_choose'''
-        data = np.loadtxt("stocks")#fich.replace(".npy", ".stocks")
+    def S3_from_Stokes(self,fich="Stokes"):#fich="lambda0.npy")
+        '''This method calculates S3 from a file called Stokes, the file must include input and output Stokes parameters.
+        this file can be saved from the method Save_Stokes_choose'''
+        data = np.loadtxt("Stokes")#fich.replace(".npy", ".Stokes")
         x0 = [np.deg2rad(45), np.deg2rad(-45), 0]
         sol, flag = optimize.leastsq(self.rot_diff, x0, args=(data))
         print("teta is = {:.1f}, psi is = {:.1f}, and tilt={:.1f}".format(np.rad2deg(sol)[0], np.rad2deg(sol)[1], np.rad2deg(sol)[2]))
@@ -282,7 +283,7 @@ class Stokes :
         plt.imshow(frame[int(x1-x_range):int(x1+x_range),int(y1-y_range):int(y1+y_range)], cmap="nipy_spectral")
         plt.colorbar()
         plt.show()
-    def Save_stocks(self,fich="lambda0.npy",frame_numb=12, x_range=50, y_range=50):
+    def Save_Stokes(self,fich="lambda0.npy",frame_numb=12, x_range=50, y_range=50):
         """ Finds position of the maximum value pixel in a defined frame then
         it plots a rectangle with max value center and x_range and y_range number of pixels
          in all directions"""
@@ -402,7 +403,7 @@ class Stokes :
         return 1
     def Carto_choose(self,fich="lambda0.npy",bdf=70,frame_numb=12,show_image=False, anime=False,save_gif=False,save_colored_gif=False):###################
         """ It asks user to choose position of x1, y1, Lx, and then it
-        calculates stocks parameters by using Moy function"""
+        calculates Stokes parameters by using Moy function"""
         ledata = np.load(fich)
         frame = ledata[frame_numb, :, :]
         fig, ax = plt.subplots()
