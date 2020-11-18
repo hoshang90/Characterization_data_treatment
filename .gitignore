@@ -2,7 +2,6 @@ lambda*
 new*
 *.gif
 stokes
-stokes_files
 Sample*
 __pycache__/
 *.swp
