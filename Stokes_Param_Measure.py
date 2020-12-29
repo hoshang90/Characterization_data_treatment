@@ -165,7 +165,7 @@ class Stokes_GUI(Frame):
     def Lam4_makezero_fun(self):
         cp.l4.Zero()
     def bs_goto_fun(self):
-        cp.bs.VaLbda(self.Bb_lam.get())
+        cp.bs.VaLbda(self.Bb_lam.get()) if self.Bb_lam.get()<=1 and self.Bb_lam.get()>=0 else tk.messagebox.showinfo("Warning","Babinet–Soleil limitations")
     def Aq_measure_fun(self):
         #print("cp.Mesure(attente=1,fich={},Npas={},pas={})".format(self.Npy_file_save.get(),int(360/self.Measure_step.get()+1),self.Measure_step.get()))
         cp.Mesure(attente=1,fich=self.Npy_file_save.get(),Npas=int(360/self.Measure_step.get()+1),pas=self.Measure_step.get())
